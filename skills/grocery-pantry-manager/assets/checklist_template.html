@@ -1,0 +1,35 @@
+<!--
+  Starting structure for the grocery/pantry checklist artifact.
+  Regenerate this fresh from the current parsed contents of
+  $GROCERY_PANTRY_DIR/grocery-list.jsonl and $GROCERY_PANTRY_DIR/pantry.jsonl
+  (default ~/.grocery-pantry) each time — don't patch an old version in place.
+  Replace the two lists below with <li> items built from current state.
+  Highlight pantry items expiring within 3 days (or already expired) with
+  the .soon class.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; color: #1a1a1a; }
+  h2 { font-size: 15px; text-transform: uppercase; letter-spacing: 0.04em; color: #666; margin: 24px 0 8px; }
+  ul { list-style: none; padding: 0; margin: 0; }
+  li { padding: 10px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; gap: 12px; }
+  .meta { color: #888; font-size: 13px; white-space: nowrap; }
+  .soon { color: #b3261e; font-weight: 600; }
+</style>
+</head>
+<body>
+  <h2>Grocery list</h2>
+  <ul id="grocery">
+    <!-- <li><span>Item name</span></li> -->
+  </ul>
+
+  <h2>Pantry</h2>
+  <ul id="pantry">
+    <!-- <li><span>Item name</span><span class="meta">expires Sep 15</span></li> -->
+    <!-- <li><span>Item name</span><span class="meta soon">expires today</span></li> -->
+  </ul>
+</body>
+</html>

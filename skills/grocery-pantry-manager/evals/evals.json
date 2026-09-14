@@ -1,0 +1,63 @@
+{
+  "skill_name": "grocery-pantry-manager",
+  "setup_note": "Set GROCERY_PANTRY_DIR to a scratch directory before running these (e.g. a temp dir) so tests don't read/write a real installation's data. Run evals 1-3 in order against the same directory since each builds on the previous one's file state; evals 4-5 assume pre-seeded files as noted in their prompts.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add milk, eggs, and tissue to my grocery list",
+      "expected_output": "All three items appended to grocery-list.jsonl (under $GROCERY_PANTRY_DIR) as separate JSON lines, each with today's date as 'added'. No pantry changes. Brief confirmation, no over-explaining.",
+      "files": [],
+      "assertions": [
+        "grocery-list.jsonl has one valid JSON line per item for milk, eggs, and a tissue/toilet-paper-type item",
+        "no line was added to pantry.jsonl",
+        "response does not ask an unnecessary clarifying question for a plain add"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "(after eval 1) Just picked up the toilet paper and the eggs",
+      "expected_output": "Matches 'toilet paper' to the 'tissue' JSON line and 'eggs' to the 'eggs' line despite the wording mismatch; removes both lines from grocery-list.jsonl; appends both as new JSON lines to pantry.jsonl with today's date as 'bought'; gives eggs a reasonable 'expires' estimate and flags it as an estimate; tells the user these are now tracked in the pantry and to say so if not actually purchased.",
+      "files": [],
+      "assertions": [
+        "the tissue JSON line is removed from grocery-list.jsonl despite the prompt saying 'toilet paper'",
+        "the eggs JSON line is removed from grocery-list.jsonl and a new eggs line is appended to pantry.jsonl",
+        "pantry.jsonl eggs line has a 'bought' field and either an 'expires' date or an explicit estimate flagged as such",
+        "response mentions pantry items can be removed if not actually bought",
+        "grocery-list.jsonl and pantry.jsonl remain valid JSONL (one parseable JSON object per line) after the edit"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "(after eval 2) The bread I bought yesterday is in the freezer, not the counter",
+      "expected_output": "Finds the existing bread JSON line in pantry.jsonl and replaces it (whole line) with an updated 'notes'/'expires' reflecting freezer storage, not a duplicate new line.",
+      "files": [],
+      "assertions": [
+        "pantry.jsonl has exactly one bread line after the turn (no duplicate)",
+        "the bread line's 'notes' or 'expires' field reflects freezer storage",
+        "the expires date, if present, was extended relative to counter storage",
+        "the edit was a full-line replace, not an appended second bread record"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "What's going on with my kitchen stuff?",
+      "expected_output": "Proactively surfaces any pantry items expiring within 3 days or already expired (by parsing 'expires' fields in pantry.jsonl), without being asked specifically about expiry. Also mentions the current grocery list briefly.",
+      "files": [],
+      "assertions": [
+        "response lists any pantry items expiring within 3 days or overdue, if present in pantry.jsonl",
+        "response does not fabricate expiry info for items with 'expires': 'unknown'"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "(pantry.jsonl pre-seeded with a milk line whose 'bought' date is 24 days ago, no repurchase since)",
+      "expected_output": "Notices the stale milk record and asks whether the user is running low, offering to add it back to the grocery list, rather than silently ignoring it or silently re-adding it.",
+      "files": [],
+      "assertions": [
+        "response proactively raises the milk staleness without being asked",
+        "response asks rather than assumes and auto-adds milk to grocery-list.jsonl",
+        "no low-stock nudge fabricated for non-staple/one-off items not in pantry.jsonl"
+      ]
+    }
+  ]
+}
