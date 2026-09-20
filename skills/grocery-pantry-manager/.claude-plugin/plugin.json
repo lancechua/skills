@@ -1,0 +1,8 @@
+{
+  "name": "grocery-pantry-manager",
+  "description": "Manage a persistent grocery/shopping list and linked pantry inventory, with expiry tracking and restock check-ins.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Lance Chua"
+  }
+}

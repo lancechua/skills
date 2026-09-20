@@ -1,0 +1,25 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "lancechua-skills",
+  "description": "Lance Chua's personal Claude Code plugin marketplace",
+  "owner": {
+    "name": "Lance Chua"
+  },
+  "plugins": [
+    {
+      "name": "grocery-pantry-manager",
+      "source": "./skills/grocery-pantry-manager",
+      "description": "Manage a persistent grocery/shopping list and linked pantry inventory, with expiry tracking and restock check-ins."
+    },
+    {
+      "name": "menstrual-cycle-companion",
+      "source": "./skills/menstrual-cycle-companion",
+      "description": "Menstrual cycle tracking, prediction, research-grounded advice, and proactive notifications for a household."
+    },
+    {
+      "name": "python-style",
+      "source": "./skills/python-style",
+      "description": "Lance's Python design philosophy: deep modules, composition over inheritance, typed returns, DRY constants, terse docstrings."
+    }
+  ]
+}

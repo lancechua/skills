@@ -1,0 +1,8 @@
+{
+  "name": "menstrual-cycle-companion",
+  "description": "Menstrual cycle tracking, prediction, research-grounded advice, and proactive notifications for a household.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Lance Chua"
+  }
+}

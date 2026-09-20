@@ -1,0 +1,8 @@
+{
+  "name": "python-style",
+  "description": "Lance's Python design philosophy: deep modules, composition over inheritance, typed returns, DRY constants, terse docstrings.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Lance Chua"
+  }
+}
