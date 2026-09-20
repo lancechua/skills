@@ -30,11 +30,15 @@ Read both files fresh at the start of any turn that touches groceries or pantry 
 ### pantry.jsonl format
 
 ```
-{"item": "eggs", "bought": "2026-09-05", "expires": "2026-09-26", "notes": "fridge"}
-{"item": "bread", "bought": "2026-09-10", "expires": "2026-09-13", "notes": "fridge, day-old when bought"}
+{"item": "eggs", "bought": "2026-09-05", "quantity": 12, "unit": "eggs", "expires": "2026-09-26", "runs_out": "2026-09-17", "consumption_rate": 1, "notes": "fridge; runs_out and consumption_rate are estimates; rate is eggs/day"}
+{"item": "bread", "bought": "2026-09-10", "quantity": 1, "unit": "loaf", "expires": "2026-09-13", "runs_out": "2026-09-15", "consumption_rate": 0.2, "notes": "fridge, day-old when bought; runs_out and consumption_rate are estimates; rate is loaves/day"}
 ```
 
-Keep one JSON object per line, no trailing commas, no multi-line objects. When you don't know an expiry date, use `"expires": "unknown"` rather than guessing — ask the user, or leave it and revisit once they mention it.
+Keep one JSON object per line, no trailing commas, no multi-line objects. `quantity` is the amount bought, and `unit` makes that amount interpretable. `expires` is the estimated quality/safety date; `runs_out` is the estimated date the household will consume the recorded quantity. They are different dates and either may be `"unknown"`. `consumption_rate` means the estimated number of `unit`s consumed per day, independent of the recorded quantity. For example, `consumption_rate: 1` with `quantity: 10` and `unit: "eggs"` means the household consumes 1 egg per day, so the eggs should last 10 days. Household size is context held in agent memory or another system prompt, not a pantry field. Preserve unknown values rather than inventing false precision.
+
+When `quantity` is unspecified, bootstrap it with a clearly labeled market/package assumption. Prefer the user's stated package size; otherwise use a common local package size (for example, 10 eggs per tray or 10 toilet-paper rolls per pack), and calibrate it to the user's country, region, retailer, or market when known. If location or market is unknown and package size materially affects the estimate, ask; otherwise use a conservative common-market guess and explicitly tell the user. Never present an assumed quantity as user-provided fact.
+
+When creating or changing an estimate, explicitly tell the user what was assumed (including household size, quantity, storage, and whether a date is about spoilage or consumption), and invite corrections. Never present `expires` or `runs_out` as certain when they are estimates.
 
 ## Writing safely
 
@@ -58,21 +62,31 @@ Append a JSON line to `grocery-list.jsonl` (e.g. `{"item": "milk", "added": "202
 
 **Marking something bought (removing from the list)**
 1. Find the matching JSON line in `grocery-list.jsonl` (fuzzy match, see above) and remove it (read-modify-write-temp-rename, see above).
-2. Append a corresponding JSON line to `pantry.jsonl` with today's date as `bought`.
-3. Ask for or infer an `expires` date if the item is perishable (see below); use `"expires": "unknown"` if genuinely unclear.
-4. Tell the user plainly that it's now tracked in the pantry, and that they should say so explicitly if they want it removed from there (e.g. they didn't actually end up buying it, or it was a mistake).
+2. Add or replace the corresponding pantry record with today's date as `bought`, recording `quantity` and `unit` when known. If an existing record for the same item is being purchased again, treat that purchase as evidence that the previous quantity ran out: calculate `consumption_rate = previous_quantity / elapsed_days_since_previous_bought`, then replace the active record rather than leaving duplicate current-stock lines.
+3. Ask for quantity and unit when they materially affect the estimate. Otherwise bootstrap them from the user's stated package or a market-aware package-size assumption, explicitly label the assumption, and allow the user to correct it. Use household size from agent memory or system context when estimating usage; do not write it to pantry.jsonl.
+4. Ask for or infer an `expires` date if the item is perishable (see below), and estimate `runs_out` from quantity and consumption rate. Use `"unknown"` if genuinely unclear; do not substitute a run-out estimate for a safety/quality expiry date.
+5. Tell the user plainly that it's now tracked in the pantry, summarize the assumptions and estimates, and say they should tell you if it was not actually purchased so the record can be removed.
 
 **Expiry dates**
 For common perishables, a reasonable estimate is fine (milk ~1 week refrigerated, bread ~5-7 days at room temp / longer refrigerated, eggs ~3-4 weeks refrigerated, leafy greens ~1 week) — write the estimate in and say it's an estimate. For anything non-perishable or ambiguous, don't invent a date.
 
 **Updating notes**
-When the user gives context that changes how long something lasts ("the bread's in the fridge, so it'll keep longer") or corrects an item, replace that pantry item's whole JSON line (read-modify-write-temp-rename) with updated `expires`/`notes`. This is a correction to an existing record, not a new item — never leave a duplicate line behind.
+When the user gives context that changes how long something lasts ("the bread's in the fridge, so it'll keep longer"), corrects an item, changes household-size context, or changes usage, replace that pantry item's whole JSON line (read-modify-write-temp-rename) with updated `expires`, `runs_out`, `consumption_rate`, `quantity`, and/or `notes`. This is a correction to an existing record, not a new item — never leave a duplicate line behind. Tell the user about every assumption changed, including the household-size context used.
+
+**Consumption and run-out estimates**
+Use the recorded quantity, household size from agent memory or system context, typical use of the item, and any prior purchase interval to estimate `consumption_rate` and `runs_out`. `consumption_rate` is the number of `unit`s consumed per day. If a whole-quantity duration is known, calculate `consumption_rate = quantity / duration_days`. If the item's quantity is measured in packages, keep the rate in packages per day; do not mix units.
+
+Calculate `runs_out` as `bought + (quantity / consumption_rate)` days. Round the run-out date to the nearest whole day and label it an estimate. When partial stock is reported, update `consumption_rate = quantity_consumed / elapsed_days` and calculate remaining days as `remaining_quantity / consumption_rate`; then set `runs_out = report_date + remaining_days`. For example, 10 eggs bought, 5 eggs remaining after 5 days means `consumption_rate = (10 - 5) / 5 = 1 egg/day` and `runs_out` is 5 days after the report date. If there is a prior observed rate, prefer it over a generic default; otherwise use typical use adjusted for the household size in context. The estimate should be a best guess, not a claim that the item is gone on that exact date.
+
+When a staple's estimated `runs_out` date arrives or passes, ask whether the household has run out or is running low before adding it to the grocery list. If the user says they still have some, ask only what is needed to improve the estimate (rough quantity remaining, original quantity if unknown, household size, and whether usage has changed), then replace that pantry line with a revised `quantity`, `runs_out`, and `consumption_rate`. Explain what changed and why.
+
+When a user reports that an item ran out earlier or later than estimated, update the active pantry line's `consumption_rate` and run-out estimate using that observation, preserve the expiry estimate separately, and explicitly state the revised assumption.
 
 **Proactive expiry check**
 Whenever you touch the pantry file for any reason, parse each line and check for items expiring within 3 days (or already past their date), and mention them — don't wait to be asked. Keep it brief: name the item(s) and how soon.
 
 **Low-stock nudge**
-If a staple item's last `bought` date in `pantry.jsonl` is old enough that a typical household would plausibly have used it up (use judgment based on the item — e.g. milk after 3 weeks with no repurchase, not after 3 days), ask the user if they're running low and offer to add it back to the grocery list. Don't do this for items with no clear consumption pattern (specialty items, one-offs).
+If a staple item's `runs_out` date has arrived or passed, ask the user if they're running low and offer to add it back to the grocery list. For older records without `runs_out`, use the previous `bought`-date heuristic as a fallback and say that the estimate is being bootstrapped. Don't do this for items with no clear consumption pattern (specialty items, one-offs). A low-stock nudge must ask rather than assume the item is gone.
 
 ## The visual checklist
 
