@@ -20,6 +20,11 @@
       "name": "python-style",
       "source": "./skills/python-style",
       "description": "Lance's Python design philosophy: deep modules, composition over inheritance, typed returns, DRY constants, terse docstrings."
+    },
+    {
+      "name": "high-signal-communication",
+      "source": "./skills/high-signal-communication",
+      "description": "Lance's standing preference for concise, visually structured chat responses: every word earns its place, and formatting/whitespace carry hierarchy."
     }
   ]
 }
