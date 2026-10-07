@@ -25,6 +25,11 @@
       "name": "high-signal-communication",
       "source": "./skills/high-signal-communication",
       "description": "Lance's standing preference for concise, visually structured chat responses: every word earns its place, and formatting/whitespace carry hierarchy."
+    },
+    {
+      "name": "git-workflow",
+      "source": "./skills/git-workflow",
+      "description": "Lance's git workflow rules: rebase over merge, one cherry-pickable commit per PR comment, no push until told, verify with git show."
     }
   ]
 }

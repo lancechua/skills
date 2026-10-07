@@ -1,0 +1,8 @@
+{
+  "name": "git-workflow",
+  "description": "Lance's git workflow rules: rebase over merge, one cherry-pickable commit per PR comment, no push until told, verify with git show.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Lance Chua"
+  }
+}
