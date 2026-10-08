@@ -5,6 +5,8 @@ description: Lance's git workflow rules (rebase over merge, one commit per PR co
 
 # Git workflow
 
+Reviewing someone else's PR: use `pr-review`.
+
 ## Rules
 
 - **Rebase, never merge.** Resolve conflicts and sync with the remote by rebasing. No merge commits.
@@ -30,10 +32,8 @@ GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash <base>
 
 1. **Fetch unresolved comments.** `gh pr view <PR> --comments` doesn't show resolved state. Use GraphQL and keep threads where `isResolved` is false:
    ```bash
-   gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){repository(owner:$o,name:$r){pullRequest(number:$n){reviewThreads(first:100){nodes{isResolved path line comments(first:10){nodes{body author{login}}}}}}}}' -F o={owner} -F r={repo} -F n=<PR>
+   gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){repository(owner:$o,name:$r){pullRequest(number:$n){reviewThreads(first:100){totalCount nodes{isResolved path line comments(first:10){nodes{createdAt url body author{login}}}}}}}}' -F o={owner} -F r={repo} -F n=<PR>
    ```
-   List them in a table.
-2. **One commit per comment.**
-3. **Overlapping comments.** If comment B builds on A's changes, B can't be cherry-picked alone. Flag it and ask: merge into one commit, or accept the dependency?
-4. **Draft a PR body:** table of comment → commit SHA → summary (SHAs from `git show`, not memory).
-5. **Stop and ask before pushing.**
+   List them in a table with each comment's `url`. If `totalCount` exceeds 100, paginate.
+2. **Overlapping comments.** If comment B builds on A's changes, B can't be cherry-picked alone. Flag it and ask: merge into one commit, or accept the dependency?
+3. **Draft a PR body:** table of comment → commit SHA → summary (SHAs from `git show`, not memory).

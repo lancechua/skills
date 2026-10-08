@@ -29,7 +29,7 @@
     {
       "name": "git-workflow",
       "source": "./skills/git-workflow",
-      "description": "Lance's git workflow rules: rebase over merge, one cherry-pickable commit per PR comment, no push until told, verify with git show."
+      "description": "Lance's git and PR workflow: rebase over merge, one cherry-pickable commit per PR comment, no push until told, plus a three-pass checklist for reviewing others' PRs."
     }
   ]
 }
