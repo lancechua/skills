@@ -1,7 +1,7 @@
 {
   "name": "git-workflow",
-  "description": "Lance's git and PR workflow: rebase over merge, one cherry-pickable commit per PR comment, no push until told, plus a three-pass checklist for reviewing others' PRs.",
-  "version": "0.2.0",
+  "description": "Lance's git and PR workflow: rebase over merge, one cherry-pickable commit per PR comment, no push until told, plus a review primer and a three-pass checklist for reviewing others' PRs.",
+  "version": "0.3.0",
   "author": {
     "name": "Lance Chua"
   }

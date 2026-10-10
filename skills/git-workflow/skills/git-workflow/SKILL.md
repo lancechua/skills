@@ -5,7 +5,7 @@ description: Lance's git workflow rules (rebase over merge, one commit per PR co
 
 # Git workflow
 
-Reviewing someone else's PR: use `pr-review`.
+Reviewing someone else's PR: use `pr-review-primer` to get oriented, then `pr-review`.
 
 ## Rules
 
