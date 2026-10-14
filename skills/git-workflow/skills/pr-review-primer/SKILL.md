@@ -13,7 +13,7 @@ The user says how to reach the PR: number, URL, branch, or a local checkout/patc
 
 ## Steps
 
-1. **Ask familiarity**, unless the user already said. One question: how well do they know the changed files/area (new / skimmed / know well)? Calibrate depth: *new* gets more background and glossary; *know well* gets only the deltas and decisions.
+1. **Ask familiarity**, unless the user already said. One question: how well do they know the changed files/area (new / skimmed / know well)? Calibrate depth: *new* gets more background and a glossary; *know well* gets only the deltas and decisions.
 2. **Gather.** Run in parallel:
    - `gh pr view <PR> --json title,body,author,baseRefName,headRefName,state,isDraft,createdAt,commits,files,statusCheckRollup,closingIssuesReferences`
    - `gh pr diff <PR>` (use `--name-only` first if huge, then read the central files)
@@ -29,7 +29,7 @@ The user says how to reach the PR: number, URL, branch, or a local checkout/patc
 - **Shape.** Size (files, +/-), split into code / tests / docs / config / generated. Mark generated or mechanical files as skippable.
 - **Key sections.** Table: file or symbol, role in the change, review priority (core / supporting / skim). Core first.
 - **Key decisions.** Each non-obvious choice the author made: the choice, the alternative, and where the PR (or a comment) justifies it. Mark "inferred" when the author didn't say.
-- **Likely confusions.** Pre-empt: misleading names, code that looks wrong but is intentional, behavior that depends on config or ordering, old code the PR touches but doesn't change, and terms of art. Scale to familiarity.
+- **Likely confusions.** Pre-empt: misleading names, code that looks wrong but is intentional, behavior that depends on config or ordering, old code the PR touches but doesn't change, and terms of art. Scale to familiarity. When several similar quantities or names are easy to mix up, add a table that separates them (name, what it is, units or scope, where it lives).
 - **Claims to check.** The PR's "exactly / always / never / no behavior change" statements, listed for `pr-review` to attack.
 - **Not in this PR.** Explicit non-goals, deferred work, TODOs added.
 
@@ -52,5 +52,6 @@ The user says how to reach the PR: number, URL, branch, or a local checkout/patc
 ## Output
 
 - Lead with the primer, then the digest. Mark what you read vs. what you inferred.
+- Use plain language throughout, whatever the familiarity level. Don't include real-world examples by default. For concepts that are complex, list them and offer an example for each as a next step.
 - Keep it skimmable: tables and short bullets, no diff retelling.
 - End with a **reading order** (3-6 files, in order) and a **first action**, e.g. "Read `src/x.py` lines 40-120, then run `pr-review`."

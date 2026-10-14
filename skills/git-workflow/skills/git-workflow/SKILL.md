@@ -12,6 +12,7 @@ Reviewing someone else's PR: use `pr-review-primer` to get oriented, then `pr-re
 - **Rebase, never merge.** Resolve conflicts and sync with the remote by rebasing. No merge commits.
 - **One commit per PR review comment.** Each commit applies cleanly on its own to the base branch: independently cherry-pickable, no dependence on later fixes.
 - **Fold follow-ups into the right commit.** `git commit --fixup <sha>`, then autosquash. No standalone "fix the fix" commits.
+- **Use a separate worktree when the user is editing or reading files.** Notebook autosave can overwrite your changes to a file open in their editor. Commit your current work first, then work in `git worktree add` on a branch and merge back by rebase.
 - **Do not push until the user explicitly says so.** This covers force-push (including after a rebase), `--force-with-lease`, tags, and `gh pr create`. Finish locally, report, then stop and ask.
 - **Verify before describing.** Run `git show <sha>` (or `--stat`) before saying what a commit changed. Never describe a diff from memory.
 - **Be pragmatic.** These are defaults, not dogma. Project conventions (CONTRIBUTING, CLAUDE.md, squash-merge policy, commit-message format) win over them. If a rule can't be met sensibly, say why and ask rather than contort the history.
